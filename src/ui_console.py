@@ -1,122 +1,139 @@
 """
 Module: ui_console.py
-Author: Erdem Vural
-Last Modified by: Erdem Vural
+Author: Fazlur Rahman
+Last Modified by: Fazlur Rahman
 Date Last Modified: 2025-12-10
 Program Description:
-    Console-based user interface for the sentiment analysis tool.
-    This module provides a simple text menu that allows the user to:
-        - analyze a single comment,
-        - analyze multiple comments in a batch,
-        - view a summary of positive, neutral, and negative results.
+    Enhanced console-based UI for the sentiment analysis tool.
+    Adds input validation, formatted output, and color-coded sentiment results.
 
 Revision History:
-    2025-12-09 - Initial skeleton created.
-    2025-12-10 - Improved input validation, output formatting, and documentation.
+    2025-12-07 - Initial skeleton created.
+    2025-12-10 - Enhanced UI, input validation, formatting, comments, color output.
 """
 
 from typing import List
-
 from sentiment_model import analyze_sentiment, analyze_batch, summarize_batch
 from preprocessing import clean_text, clean_comments
+from colorama import init, Fore, Style
+
+# Initialize colorama for Windows
+init(autoreset=True)
 
 
 def run_app() -> None:
     """
-    Main loop for the console-based user interface.
-
-    Shows the main menu, handles user choices (single analysis,
-    batch analysis, or exit), and calls the appropriate helper functions.
+    Main loop for the console UI.
+    Continuously shows the menu until the user chooses to exit.
     """
+    print("=== Welcome to the Sentiment Analysis Tool ===")
     while True:
-        print("\n=== Sentiment Analysis Tool ===")
-        print("1) Analyze a single comment")
-        print("2) Analyze multiple comments (one per line, end with empty line)")
-        print("0) Exit")
+        print("\nMenu:")
+        print("  1) Analyze a single comment")
+        print("  2) Analyze multiple comments (one per line, end with empty line)")
+        print("  0) Exit")
 
-        choice = input("Select an option (0, 1, or 2): ").strip()
+        choice = get_menu_choice()
 
-        # Validate menu choice
         if choice == "1":
             handle_single_comment()
         elif choice == "2":
             handle_multiple_comments()
         elif choice == "0":
-            print("Goodbye.")
-            break
-        else:
-            print("Invalid option. Please enter 0, 1, or 2.")
+            confirm_exit = input("Are you sure you want to exit? (y/n): ").strip().lower()
+            if confirm_exit == "y":
+                print("Goodbye.")
+                break
+            else:
+                print("Returning to menu...")
+
+
+def get_menu_choice() -> str:
+    """
+    Prompt the user for a valid menu choice (0, 1, or 2).
+    Repeats until a valid input is entered.
+
+    Returns:
+        str: the chosen option
+    """
+    valid_choices = {"0", "1", "2"}
+    while True:
+        choice = input("Select an option: ").strip()
+        if choice in valid_choices:
+            return choice
+        print("Invalid input. Please enter 0, 1, or 2.")
+
+
+def colorize_sentiment(sentiment: str, text: str) -> str:
+    """
+    Return the text wrapped with color based on sentiment.
+
+    Parameters:
+        sentiment (str): 'positive', 'neutral', or 'negative'
+        text (str): the comment text
+
+    Returns:
+        str: colored string for console display
+    """
+    if sentiment == "positive":
+        return Fore.GREEN + text + Style.RESET_ALL
+    elif sentiment == "negative":
+        return Fore.RED + text + Style.RESET_ALL
+    else:
+        return Fore.YELLOW + text + Style.RESET_ALL
 
 
 def handle_single_comment() -> None:
     """
-    Handle the flow for analyzing a single user comment.
-
-    Asks the user to enter a comment, applies preprocessing,
-    calls the sentiment model, and prints a formatted result.
+    Prompt the user for a single comment, clean it,
+    analyze the sentiment, and display the result with color.
     """
-    print("\n--- Single comment analysis ---")
-    text = input("Enter your comment: ")
-
-    # Check for empty input
-    if not text.strip():
-        print("Please enter a non-empty comment.")
+    text = input("\nEnter your comment: ").strip()
+    if not text:
+        print("No input detected. Returning to menu...")
         return
 
-    # Preprocess and analyze
     cleaned = clean_text(text)
     label = analyze_sentiment(cleaned)
 
-    # Show detailed result
     print("\nResult:")
-    print(f'  Original: "{text}"')
-    print(f'  Cleaned : "{cleaned}"')
-    print(f"  Sentiment: {label}")
+    print(f"  Comment   : {text}")
+    print(f"  Sentiment : {colorize_sentiment(label, label.capitalize())}")
 
 
 def handle_multiple_comments() -> None:
     """
-    Handle the flow for analyzing multiple comments in a batch.
-
-    Reads comments line by line until the user enters an empty line,
-    applies preprocessing to all comments, runs batch sentiment analysis,
-    and prints both detailed results and a summary.
+    Prompt the user to enter multiple comments (one per line),
+    clean them, analyze sentiment for each, and display results
+    and summary statistics with colors.
     """
-    print("\n--- Batch comment analysis ---")
-    print("Enter comments (one per line). Submit an empty line to finish.")
-
+    print("\nEnter comments (one per line). Press Enter on an empty line to finish.")
     lines: List[str] = []
 
-    # Read comments until an empty line is entered
     while True:
-        line = input()
-        if line.strip() == "":
+        line = input().strip()
+        if line == "":
             break
         lines.append(line)
 
-    # If no comments were entered, inform the user and return to the menu
     if not lines:
-        print("No comments entered. Returning to main menu.")
+        print("No comments entered. Returning to menu...")
         return
 
-    # Preprocess comments and perform batch analysis
-    cleaned_comments = clean_comments(lines)
-    results = analyze_batch(cleaned_comments)
+    cleaned = clean_comments(lines)
+    results = analyze_batch(cleaned)
     summary = summarize_batch(results)
 
-    # Print detailed results
-    print("\n=== Batch analysis results ===")
-    for original, item in zip(lines, results):
-        sentiment = item["sentiment"]
-        print(f'- "{original}" -> {sentiment}')
+    print("\nResults:")
+    for i, item in enumerate(results, start=1):
+        sentiment_colored = colorize_sentiment(item['sentiment'], item['sentiment'].capitalize())
+        print(f"{i}. Comment : \"{item['text']}\" | Sentiment: {sentiment_colored}")
 
-    # Print summary in a readable format
     print("\nSummary:")
-    print(f"  Positive: {summary.get('positive', 0)}")
-    print(f"  Neutral : {summary.get('neutral', 0)}")
-    print(f"  Negative: {summary.get('negative', 0)}")
-
-
-if __name__ == "__main__":
-    # Allow running this module directly for quick testing.
-    run_app()
+    for sentiment, count in summary.items():
+        color = {
+            "positive": Fore.GREEN,
+            "neutral": Fore.YELLOW,
+            "negative": Fore.RED
+        }.get(sentiment, "")
+        print(f"  {color}{sentiment.capitalize():<8}: {count}{Style.RESET_ALL}")
