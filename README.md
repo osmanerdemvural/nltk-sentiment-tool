@@ -1,54 +1,44 @@
-NLTK-Based Sentiment Analysis Tool
+# NLTK-Based Sentiment Analysis Tool
 
-A simple Python console application that analyzes the sentiment of user comments using NLTK VADER.
-The tool classifies text as positive, neutral, or negative, and supports both single and batch analysis.
+A simple Python console application that analyzes the **sentiment** of user comments using **NLTK VADER**.  
+The tool classifies text as **positive**, **neutral**, or **negative**, and supports both single and batch analysis.
 
-Features
+---
 
-Analyze the sentiment of a single comment
+## Features
 
-Analyze multiple comments in one run (batch mode)
+- Analyze the sentiment of **a single comment**
+- Analyze **multiple comments** in one run (batch mode)
+- Text preprocessing:
+  - Lowercasing
+  - Tokenization
+  - Punctuation removal
+  - English stopwords removal (while keeping important words like **"not"**)
+- Sentiment classification using **NLTK VADER**
+- **Color-coded output** in the console (using `colorama`):
+  - Green → positive  
+  - Yellow → neutral  
+  - Red → negative  
+- Clear console menu with **input validation** and **summary** for batch results
 
-Text preprocessing:
+---
 
-Lowercasing
+## Tech Stack
 
-Tokenization
+- **Language:** Python 3.x
+- **Libraries:**
+  - `nltk` (VADER sentiment, tokenization, stopwords)
+  - `colorama` (for colored console output)
+- **Interface:** Console / terminal
+- **Tools:** Visual Studio Code, Git, GitHub
 
-Punctuation removal
+---
 
-English stopwords removal (while keeping important words like "not")
+## Installation
 
-Sentiment classification using NLTK VADER
+1. Clone the repository:
 
-Color-coded output in the console (using colorama):
-
-Green → positive
-
-Yellow → neutral
-
-Red → negative
-
-Clear console menu with input validation and summary for batch results
-
-Tech Stack
-
-Language: Python 3.x
-
-Libraries:
-
-nltk (VADER sentiment, tokenization, stopwords)
-
-colorama (for colored console output)
-
-Interface: Console / terminal
-
-Tools: Visual Studio Code, Git, GitHub
-
-Installation
-
-Clone the repository:
-
+```bash
 git clone https://github.com/osmanerdemvural/nltk-sentiment-tool.git
 cd nltk-sentiment-tool
 
@@ -62,7 +52,6 @@ python -m venv .venv
 
 # macOS/Linux:
 source .venv/bin/activate
-
 
 Install required libraries:
 
@@ -92,26 +81,19 @@ Menu:
 Option 1 – Single Comment
 
 Choose 1
-
 Type one sentence, for example:
-
 Enter your comment: I love this product, it works perfectly!
-
 
 The program will:
 
 Clean the text
-
 Analyze sentiment
-
 Show the result, with the sentiment color-coded (green/yellow/red)
 
 Option 2 – Multiple Comments (Batch)
 
 Choose 2
-
 Enter several comments, one per line
-
 Press Enter on an empty line to finish
 
 Example:
@@ -125,11 +107,8 @@ This is terrible
 
 
 The program will:
-
 Clean each comment
-
 Analyze sentiment for each one
-
 Print a numbered list of comments with their sentiment
 
 Show a summary, for example:
@@ -147,9 +126,7 @@ The program will ask for confirmation:
 
 Are you sure you want to exit? (y/n)
 
-
 y → exit
-
 n → return to the menu
 
 Project Structure
